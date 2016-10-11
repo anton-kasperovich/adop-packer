@@ -1,0 +1,84 @@
+{
+    "variables": {
+        "aws_access_key": "",
+        "aws_secret_key": ""
+    },
+
+    "builders": [
+        {
+            "type": "amazon-ebs",
+            "ssh_pty": "true",
+            "access_key": "{{user `aws_access_key`}}",
+            "secret_key": "{{user `aws_secret_key`}}",
+            "region": "us-east-1",
+            "ami_groups": ["all"],
+            "source_ami": "ami-c481fad3",
+            "instance_type": "m3.large",
+            "ssh_username": "ec2-user",
+            "ssh_timeout": "5m",
+            "ami_name": "ADOP-C-GEN5-AMI-{{isotime \"02-Jan-06\"}}_{{isotime \"Mon 03-05-04\"}}",
+            "ami_regions": [
+                "us-east-1",
+                "us-west-1",
+                "eu-west-1"
+            ],
+            "ami_block_device_mappings": [
+                {
+                    "device_name": "/dev/xvda",
+                    "volume_size": 8,
+                    "volume_type": "gp2",
+                    "delete_on_termination": true
+                },
+                {
+                    "device_name": "/dev/xvdb",
+                    "volume_size": 150,
+                    "volume_type": "gp2",
+                    "delete_on_termination": true
+                }
+            ],
+            "launch_block_device_mappings": [
+                {
+                    "device_name": "/dev/xvda",
+                    "volume_size": 8,
+                    "volume_type": "gp2",
+                    "delete_on_termination": true
+                },
+                {
+                    "device_name": "/dev/xvdb",
+                    "volume_size": 150,
+                    "volume_type": "gp2",
+                    "delete_on_termination": true
+                }
+            ]
+        }
+    ],
+
+    "provisioners": [
+        {
+            "type": "shell",
+            "execute_command": "echo 'docker' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'",
+            "inline": [
+                "sudo su root",
+                "pvcreate /dev/xvdb",
+                "vgcreate vg-docker /dev/xvdb",
+                "lvcreate -l 95%VG -n data vg-docker",
+                "lvcreate -l 5%VG -n metadata vg-docker",
+                "yum update -y && yum install -y wget unzip git docker-1.11.2-1.6.amzn1 zip bzip2",
+                "echo 'OPTIONS=\"--selinux-enabled=false --default-ulimit nofile=1024000:1024000\"' >> /etc/sysconfig/docker",
+                "echo 'DOCKER_STORAGE_OPTIONS=\"--storage-driver=devicemapper --storage-opt dm.metadatadev=/dev/vg-docker/metadata --storage-opt dm.datadev=/dev/vg-docker/data\"' >> /etc/sysconfig/docker-storage",
+                "service docker start",
+                "usermod -a -G docker ec2-user",
+                "curl -L https://github.com/docker/compose/releases/download/1.8.1/docker-compose-`uname -s`-`uname -m` > /usr/bin/docker-compose",
+                "chmod +x /usr/bin/docker-compose",
+                "curl -L https://github.com/docker/machine/releases/download/v0.8.2/docker-machine-`uname -s`-`uname -m` > /usr/bin/docker-machine",
+                "chmod +x /usr/bin/docker-machine",
+                "mkdir -p /data",
+                "git clone https://github.com/Accenture/adop-docker-compose.git /data/adop-docker-compose",
+                "cd /data/adop-docker-compose",
+                "docker-compose -f compose/elk.yml pull",
+                "docker-compose pull"
+            ]
+        }
+    ]
+
+}
