@@ -12,11 +12,11 @@
             "secret_key": "{{user `aws_secret_key`}}",
             "region": "us-east-1",
             "ami_groups": ["all"],
-            "source_ami": "ami-c481fad3",
-            "instance_type": "m3.large",
-            "ssh_username": "ec2-user",
+            "source_ami": "ami-3ab1fa2d",
+            "instance_type": "m4.xlarge",
+            "ssh_username": "ubuntu",
             "ssh_timeout": "5m",
-            "ami_name": "ADOP-C-GEN5-AMI-{{isotime \"02-Jan-06\"}}_{{isotime \"Mon 03-05-04\"}}",
+            "ami_name": "ADOPC-UBUNTU-16-04-{{isotime \"02-Jan-06\"}}_{{isotime \"Mon 03-05-04\"}}",
             "ami_regions": [
                 "us-east-1",
                 "us-west-1",
@@ -24,13 +24,7 @@
             ],
             "ami_block_device_mappings": [
                 {
-                    "device_name": "/dev/xvda",
-                    "volume_size": 8,
-                    "volume_type": "gp2",
-                    "delete_on_termination": true
-                },
-                {
-                    "device_name": "/dev/xvdb",
+                    "device_name": "/dev/sda1",
                     "volume_size": 150,
                     "volume_type": "gp2",
                     "delete_on_termination": true
@@ -38,13 +32,7 @@
             ],
             "launch_block_device_mappings": [
                 {
-                    "device_name": "/dev/xvda",
-                    "volume_size": 8,
-                    "volume_type": "gp2",
-                    "delete_on_termination": true
-                },
-                {
-                    "device_name": "/dev/xvdb",
+                    "device_name": "/dev/sda1",
                     "volume_size": 150,
                     "volume_type": "gp2",
                     "delete_on_termination": true
@@ -59,15 +47,15 @@
             "execute_command": "echo 'docker' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'",
             "inline": [
                 "sudo su root",
-                "pvcreate /dev/xvdb",
-                "vgcreate vg-docker /dev/xvdb",
-                "lvcreate -l 95%VG -n data vg-docker",
-                "lvcreate -l 5%VG -n metadata vg-docker",
-                "yum update -y && yum install -y wget unzip git docker-1.11.2-1.6.amzn1 zip bzip2",
-                "echo 'OPTIONS=\"--selinux-enabled=false --default-ulimit nofile=1024000:1024000\"' >> /etc/sysconfig/docker",
-                "echo 'DOCKER_STORAGE_OPTIONS=\"--storage-driver=devicemapper --storage-opt dm.metadatadev=/dev/vg-docker/metadata --storage-opt dm.datadev=/dev/vg-docker/data\"' >> /etc/sysconfig/docker-storage",
+                "apt-get update",
+                "apt-get -y install wget unzip git zip bzip2 apt-transport-https ca-certificates linux-image-extra-$(uname -r) linux-image-extra-virtual",
+                "apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D",
+                "echo \"deb https://apt.dockerproject.org/repo ubuntu-xenial main\" > /etc/apt/sources.list.d/docker.list",
+                "apt-get update",
+                "apt-get -y install docker-engine=1.12.2-0~xenial",
+                "systemctl enable docker",
                 "service docker start",
-                "usermod -a -G docker ec2-user",
+                "usermod -a -G docker ubuntu",
                 "curl -L https://github.com/docker/compose/releases/download/1.8.1/docker-compose-`uname -s`-`uname -m` > /usr/bin/docker-compose",
                 "chmod +x /usr/bin/docker-compose",
                 "curl -L https://github.com/docker/machine/releases/download/v0.8.2/docker-machine-`uname -s`-`uname -m` > /usr/bin/docker-machine",
@@ -75,6 +63,7 @@
                 "mkdir -p /data",
                 "git clone https://github.com/Accenture/adop-docker-compose.git /data/adop-docker-compose",
                 "cd /data/adop-docker-compose",
+                "docker network create local_network",
                 "docker-compose -f compose/elk.yml pull",
                 "docker-compose pull"
             ]
