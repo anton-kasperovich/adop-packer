@@ -20,7 +20,8 @@
             "ami_regions": [
                 "us-east-1",
                 "us-west-1",
-                "eu-west-1"
+                "eu-west-1",
+                "eu-west-2"
             ],
             "ami_block_device_mappings": [
                 {
@@ -48,7 +49,7 @@
             "inline": [
                 "sudo su root",
                 "apt-get update",
-                "apt-get -y install wget unzip git zip bzip2 apt-transport-https ca-certificates linux-image-extra-$(uname -r) linux-image-extra-virtual",
+                "apt-get -y install wget unzip git zip bzip2 python python-pip apt-transport-https ca-certificates linux-image-extra-$(uname -r) linux-image-extra-virtual",
                 "apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D",
                 "echo \"deb https://apt.dockerproject.org/repo ubuntu-xenial main\" > /etc/apt/sources.list.d/docker.list",
                 "apt-get update",
@@ -56,7 +57,7 @@
                 "systemctl enable docker",
                 "service docker start",
                 "usermod -a -G docker ubuntu",
-                "curl -L https://github.com/docker/compose/releases/download/1.8.1/docker-compose-`uname -s`-`uname -m` > /usr/bin/docker-compose",
+                "curl -L https://github.com/docker/compose/releases/download/1.9.0/docker-compose-`uname -s`-`uname -m` > /usr/bin/docker-compose",
                 "chmod +x /usr/bin/docker-compose",
                 "curl -L https://github.com/docker/machine/releases/download/v0.8.2/docker-machine-`uname -s`-`uname -m` > /usr/bin/docker-machine",
                 "chmod +x /usr/bin/docker-machine",
