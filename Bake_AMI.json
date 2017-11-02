@@ -3,7 +3,6 @@
         "aws_access_key": "",
         "aws_secret_key": ""
     },
-
     "builders": [
         {
             "type": "amazon-ebs",
@@ -41,7 +40,6 @@
             ]
         }
     ],
-
     "provisioners": [
         {
             "type": "shell",
@@ -49,17 +47,17 @@
             "inline": [
                 "sudo su root",
                 "apt-get update",
-                "apt-get -y install wget unzip git zip bzip2 python python-pip apt-transport-https ca-certificates linux-image-extra-$(uname -r) linux-image-extra-virtual",
-                "apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D",
-                "echo \"deb https://apt.dockerproject.org/repo ubuntu-xenial main\" > /etc/apt/sources.list.d/docker.list",
+                "apt-get -y install curl wget unzip git zip bzip2 python python-pip apt-transport-https ca-certificates software-properties-common linux-image-extra-$(uname -r) linux-image-extra-virtual",
+                "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -",
+                "add-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\"",
                 "apt-get update",
-                "apt-get -y install docker-engine=1.12.2-0~xenial",
+                "apt-get -y install docker-ce=17.06.1~ce-0~ubuntu",
                 "systemctl enable docker",
                 "service docker start",
                 "usermod -a -G docker ubuntu",
-                "curl -L https://github.com/docker/compose/releases/download/1.9.0/docker-compose-`uname -s`-`uname -m` > /usr/bin/docker-compose",
+                "curl -L https://github.com/docker/compose/releases/download/1.16.1/docker-compose-`uname -s`-`uname -m` > /usr/bin/docker-compose",
                 "chmod +x /usr/bin/docker-compose",
-                "curl -L https://github.com/docker/machine/releases/download/v0.8.2/docker-machine-`uname -s`-`uname -m` > /usr/bin/docker-machine",
+                "curl -L https://github.com/docker/machine/releases/download/v0.12.2/docker-machine-`uname -s`-`uname -m` > /usr/bin/docker-machine",
                 "chmod +x /usr/bin/docker-machine",
                 "mkdir -p /data",
                 "git clone https://github.com/Accenture/adop-docker-compose.git /data/adop-docker-compose",
@@ -70,5 +68,4 @@
             ]
         }
     ]
-
 }
