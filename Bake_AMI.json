@@ -63,12 +63,13 @@
                 "mkdir -p /data",
                 "git clone https://github.com/Accenture/adop-docker-compose.git /data/adop-docker-compose",
                 "cd /data/adop-docker-compose",
+                "git checkout 19b6fa4b50c998dbb98cf03e019d61e14a0a112b\n",
                 "docker network create local_network",
                 "docker-compose -f compose/elk.yml pull",
                 "docker-compose pull",
-				"curl -O https://bootstrap.pypa.io/get-pip.py",
-				"python get-pip.py",
-				"pip install awscli --ignore-installed six"
+                "curl -O https://bootstrap.pypa.io/get-pip.py",
+                "python get-pip.py",
+                "pip install awscli --ignore-installed six"
             ]
         }
     ]
