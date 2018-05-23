@@ -65,7 +65,10 @@
                 "cd /data/adop-docker-compose",
                 "docker network create local_network",
                 "docker-compose -f compose/elk.yml pull",
-                "docker-compose pull"
+                "docker-compose pull",
+				"curl -O https://bootstrap.pypa.io/get-pip.py",
+				"python get-pip.py",
+				"pip install awscli --ignore-installed six"
             ]
         }
     ]
